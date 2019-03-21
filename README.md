@@ -38,7 +38,7 @@ and Detectron:
 
 ### End-to-End Mask R-CNN Baselines
 
-<table><tbody>
+<table align="canter"><tbody>
 <!-- START E2E FASTER AND MASK TABLE -->
 <!-- TABLE HEADER -->
 <!-- Info: we use wrap text in <sup><sub></sub><sup> to make is small -->
