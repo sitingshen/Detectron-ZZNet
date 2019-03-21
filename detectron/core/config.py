@@ -729,6 +729,8 @@ __C.FPN.RPN_ANCHOR_START_SIZE = 32
 __C.FPN.EXTRA_CONV_LEVELS = False
 # Use GroupNorm in the FPN-specific layers (lateral, etc.)
 __C.FPN.USE_GN = False
+# Use USE_ZZNet in the FPN-specific layers (lateral, etc.)
+__C.FPN.USE_ZZNet = False
 
 
 # ---------------------------------------------------------------------------- #

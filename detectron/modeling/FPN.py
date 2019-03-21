@@ -139,49 +139,109 @@ def add_fpn(model, fpn_level_info):
     fpn_dim_lateral = fpn_level_info.dims
     xavier_fill = ('XavierFill', {})
 
-    # For the coarsest backbone level: 1x1 conv only seeds recursion
-    if cfg.FPN.USE_GN:
-        # use GroupNorm
-        c = model.ConvGN(
-            lateral_input_blobs[0],
-            output_blobs[0],  # note: this is a prefix
-            dim_in=fpn_dim_lateral[0],
-            dim_out=fpn_dim,
-            group_gn=get_group_gn(fpn_dim),
-            kernel=1,
-            pad=0,
-            stride=1,
-            weight_init=xavier_fill,
-            bias_init=const_fill(0.0)
-        )
-        output_blobs[0] = c  # rename it
+    if cfg.FPN.USE_ZZNet:
+        attention_topdown=[
+            'attention_td_{}'.format(s)
+            for s in fpn_level_info.blobs[:num_backbone_stages]
+        ]
+        loop_bu=[
+            'loop_bu_{}'.format(s)
+            for s in fpn_level_info.blobs[:num_backbone_stages]
+        ]
+        loop_td = [
+            'loop_td_{}'.format(s)
+            for s in fpn_level_info.blobs[:num_backbone_stages]
+        ]
+        loop_bu_1 = [
+            'loop_bu_1_{}'.format(s)
+            for s in fpn_level_info.blobs[:num_backbone_stages]
+        ]
+        loop_td_1 = [
+            'loop_td_1_{}'.format(s)
+            for s in fpn_level_info.blobs[:num_backbone_stages]
+        ]
+
+
+        # For the coarsest backbone level: 1x1 conv only seeds recursion
+        if cfg.FPN.USE_GN:
+            # use GroupNorm
+            c = model.ConvGN(
+                lateral_input_blobs[0],
+                attention_topdown[0],  # note: this is a prefix
+                dim_in=fpn_dim_lateral[0],
+                dim_out=fpn_dim,
+                group_gn=get_group_gn(fpn_dim),
+                kernel=3,
+                pad=1,
+                stride=1,
+                weight_init=xavier_fill,
+                bias_init=const_fill(0.0)
+            )
+            attention_topdown[0] = c  # rename it
+        else:
+            model.Conv(
+                lateral_input_blobs[0],
+                attention_topdown[0],
+                dim_in=fpn_dim_lateral[0],
+                dim_out=fpn_dim,
+                kernel=3,
+                pad=1,
+                stride=1,
+                weight_init=xavier_fill,
+                bias_init=const_fill(0.0)
+            )
+
+        add_attention_backbone_fpn_topdown_module(model, lateral_input_blobs, attention_topdown, fpn_dim_lateral, fpn_dim,num_backbone_stages)
+        add_attention_backbone_fpn_bottomup_module(model, attention_topdown, loop_bu, fpn_dim, num_backbone_stages, lateral_input_blobs )
+        add_loop_topdown_module(model, attention_topdown, loop_bu, loop_td, fpn_dim, num_backbone_stages, 0)
+        add_loop_bottomup_module(model, loop_bu, loop_td, loop_bu_1, fpn_dim, num_backbone_stages, 1)
+        add_loop_topdown_module(model, loop_td, loop_bu_1, loop_td_1, fpn_dim, num_backbone_stages, 2)
+        add_loop_bottomup_module(model, loop_bu_1, loop_td_1, output_blobs, fpn_dim, num_backbone_stages, 3)
+
     else:
-        model.Conv(
-            lateral_input_blobs[0],
-            output_blobs[0],
-            dim_in=fpn_dim_lateral[0],
-            dim_out=fpn_dim,
-            kernel=1,
-            pad=0,
-            stride=1,
-            weight_init=xavier_fill,
-            bias_init=const_fill(0.0)
-        )
 
-    #
-    # Step 1: recursively build down starting from the coarsest backbone level
-    #
+        # For the coarsest backbone level: 1x1 conv only seeds recursion
+        if cfg.FPN.USE_GN:
+            # use GroupNorm
+            c = model.ConvGN(
+                lateral_input_blobs[0],
+                output_blobs[0],  # note: this is a prefix
+                dim_in=fpn_dim_lateral[0],
+                dim_out=fpn_dim,
+                group_gn=get_group_gn(fpn_dim),
+                kernel=3,
+                pad=1,
+                stride=1,
+                weight_init=xavier_fill,
+                bias_init=const_fill(0.0)
+            )
+            output_blobs[0] = c  # rename it
+        else:
+            model.Conv(
+                lateral_input_blobs[0],
+                output_blobs[0],
+                dim_in=fpn_dim_lateral[0],
+                dim_out=fpn_dim,
+                kernel=3,
+                pad=1,
+                stride=1,
+                weight_init=xavier_fill,
+                bias_init=const_fill(0.0)
+            )
+        #
+        # Step 1: recursively build down starting from the coarsest backbone level
+        #
 
-    # For other levels add top-down and lateral connections
-    for i in range(num_backbone_stages - 1):
-        add_topdown_lateral_module(
-            model,
-            output_blobs[i],             # top-down blob
-            lateral_input_blobs[i + 1],  # lateral blob
-            output_blobs[i + 1],         # next output blob
-            fpn_dim,                     # output dimension
-            fpn_dim_lateral[i + 1]       # lateral input dimension
-        )
+        # For other levels add top-down and lateral connections
+        for i in range(num_backbone_stages - 1):
+            add_topdown_lateral_module(
+                model,
+                output_blobs[i],             # top-down blob
+                lateral_input_blobs[i + 1],  # lateral blob
+                output_blobs[i + 1],         # next output blob
+                fpn_dim,                     # output dimension
+                fpn_dim_lateral[i + 1]       # lateral input dimension
+            )
 
     # Post-hoc scale-specific 3x3 convs
     blobs_fpn = []
@@ -254,6 +314,291 @@ def add_fpn(model, fpn_level_info):
             spatial_scales.insert(0, spatial_scales[0] * 0.5)
 
     return blobs_fpn, fpn_dim, spatial_scales
+
+
+def add_loop_bottomup_module(model, loop_bu, loop_td, output_blobs, fpn_dim, num_backbone_stages, tab):
+   lp_td=[
+        '{}_loop_c'.format(s)+str(tab)
+        for s in loop_td[:num_backbone_stages]
+    ]
+   lp_bu=[
+        '{}_loop_c'.format(s)+str(tab)
+        for s in loop_bu[:num_backbone_stages]
+    ]
+   for i in range(num_backbone_stages):
+       td=model.ConvGN(
+           loop_td[i],
+           lp_td[i],
+           dim_in=fpn_dim,
+           dim_out=fpn_dim,
+           group_gn=get_group_gn(fpn_dim),
+           kernel=3,
+           pad=1,
+           stride=1,
+           weight_init=(
+               const_fill(0.0) if cfg.FPN.ZERO_INIT_LATERAL
+               else ('XavierFill', {})
+           ),
+           bias_init=const_fill(0.0)
+       )
+       lp_td[i]=model.net.Relu(td,td)
+       bu=model.ConvGN(
+           loop_bu[i],
+           lp_bu[i],
+           dim_in=fpn_dim,
+           dim_out=fpn_dim,
+           group_gn=get_group_gn(fpn_dim),
+           kernel=3,
+           pad=1,
+           stride=1,
+           weight_init=(
+               const_fill(0.0) if cfg.FPN.ZERO_INIT_LATERAL
+               else ('XavierFill', {})
+           ),
+           bias_init=const_fill(0.0)
+       )
+       lp_bu[i]=model.net.Relu(bu, bu)
+   lp_td.reverse()
+   lp_bu.reverse()
+   output_blobs.reverse()
+   model.net.Mul([lp_td[0], lp_bu[0]], output_blobs[0])
+   for index in range(num_backbone_stages - 1):
+        sum_blobs=[]
+        mul_blobs=[]
+        pn_top_up = model.net.ResizeNearest(output_blobs[index], output_blobs[index] + '_bottomup', width_scale=1 / 2, height_scale=1 / 2)
+        sum_blobs.append(pn_top_up)
+        if index==0:
+            mul = model.net.Mul([lp_td[1], lp_bu[1]], lp_bu[1] + '_mul')
+            model.net.Sum([mul, pn_top_up], output_blobs[1])
+        else:
+            for i in range(index):
+                re_scale = 2 ** (1 + index - i)
+                feature_c = model.Conv(
+                    output_blobs[i],
+                    output_blobs[i] + '_To_' + output_blobs[index + 1] + '_c',
+                    dim_in=fpn_dim,
+                    dim_out=fpn_dim,
+                    kernel=3,
+                    pad=1,
+                    stride=1,
+                    weight_init=(
+                        const_fill(0.0) if cfg.FPN.ZERO_INIT_LATERAL
+                        else ('XavierFill', {})
+                    ),
+                    bias_init=const_fill(0.0)
+                )
+                feature_up = model.net.ResizeNearest(feature_c, output_blobs[i] + '_To_' + output_blobs[index + 1] + '_c_bu', width_scale=1 / re_scale, height_scale=1 / re_scale)
+
+                if index == 1:
+                    sum_blobs.append(feature_up)
+                elif index == 2:
+                    mul_blobs.append(feature_up)
+            if index == 2:
+                sum_blobs.append(model.net.Mul(mul_blobs, lp_td[index + 1] + '_fuse-mul'))
+
+            sum_blobs.append(model.net.Mul([lp_td[index+1],lp_bu[index + 1]],lp_td[index + 1]+'_mul'))
+            model.net.Sum(sum_blobs, output_blobs[index + 1])
+   output_blobs.reverse()
+
+
+def add_loop_topdown_module(model, attention_topdown, loop_bu, output_blobs, fpn_dim, num_backbone_stages, tab):
+   att_td=[
+        '{}_loop_c'.format(s)+str(tab)
+        for s in attention_topdown[:num_backbone_stages]
+    ]
+   lp_bu=[
+        '{}_loop_c'.format(s)+str(tab)
+        for s in loop_bu[:num_backbone_stages]
+    ]
+   for i in range(num_backbone_stages):
+       td=model.ConvGN(
+           attention_topdown[i],
+           att_td[i],
+           dim_in=fpn_dim,
+           dim_out=fpn_dim,
+           group_gn=get_group_gn(fpn_dim),
+           kernel=3,
+           pad=1,
+           stride=1,
+           weight_init=(
+               const_fill(0.0) if cfg.FPN.ZERO_INIT_LATERAL
+               else ('XavierFill', {})
+           ),
+           bias_init=const_fill(0.0)
+       )
+       att_td[i]=model.net.Relu(td,td)
+       bu=model.ConvGN(
+           loop_bu[i],
+           lp_bu[i],
+           dim_in=fpn_dim,
+           dim_out=fpn_dim,
+           group_gn=get_group_gn(fpn_dim),
+           kernel=3,
+           pad=1,
+           stride=1,
+           weight_init=(
+               const_fill(0.0) if cfg.FPN.ZERO_INIT_LATERAL
+               else ('XavierFill', {})
+           ),
+           bias_init=const_fill(0.0)
+       )
+       lp_bu[i]=model.net.Relu(bu, bu)
+
+   model.net.Mul([att_td[0], lp_bu[0]], output_blobs[0])
+   for index in range(num_backbone_stages - 1):
+        sum_blobs=[]
+        mul_blob=[]
+        pn_top_up = model.net.UpsampleNearest(output_blobs[index], output_blobs[index] + '_topdown', scale=2)
+        sum_blobs.append(pn_top_up)
+        if index==0:
+            mul=model.net.Mul([att_td[1], lp_bu[1]], lp_bu[1]+'_mul')
+            model.net.Sum([mul, pn_top_up], output_blobs[1])
+        else:
+
+            for i in range(index):
+                re_scale = 2 ** (1 + index - i)
+                feature_c = model.Conv(
+                    output_blobs[i],
+                    output_blobs[i] + '_To_' + output_blobs[index + 1] + '_c',
+                    dim_in=fpn_dim,
+                    dim_out=fpn_dim,
+                    kernel=3,
+                    pad=1,
+                    stride=1,
+                    weight_init=(
+                        const_fill(0.0) if cfg.FPN.ZERO_INIT_LATERAL
+                        else ('XavierFill', {})
+                    ),
+                    bias_init=const_fill(0.0)
+                )
+
+                feature_up = model.net.UpsampleNearest(feature_c, feature_c + '_up', scale=re_scale)
+
+                if index == 1:
+                    sum_blobs.append(feature_up)
+                elif index==2:
+                    mul_blob.append(feature_up)
+            if index ==2:
+                sum_blobs.append(model.net.Mul(mul_blob,lp_bu[index + 1]+'_fuse-mul'))
+
+            sum_blobs.append(model.net.Mul([att_td[index+1],lp_bu[index + 1]],lp_bu[index + 1]+'_mul'))
+            model.net.Sum(sum_blobs, output_blobs[index + 1])
+
+
+def add_attention_backbone_fpn_topdown_module(
+        model, lateral_input_blobs,output_blobs,fpn_dim_lateral,fpn_dim,num_backbone_stages):
+    for index in range(num_backbone_stages - 1):
+        mul_blobs=[]
+        fpn_top_up = model.net.UpsampleNearest(output_blobs[index], output_blobs[index] + '_topdown', scale=2)
+        feature_lat = model.Conv(
+            lateral_input_blobs[index+1],
+            lateral_input_blobs[index+1]+'_lat',
+            dim_in=fpn_dim_lateral[index+1],
+            dim_out=fpn_dim,
+            kernel=3,
+            pad=1,
+            stride=1,
+            weight_init=(
+                const_fill(0.0) if cfg.FPN.ZERO_INIT_LATERAL
+                else ('XavierFill', {})
+            ),
+            bias_init=const_fill(0.0)
+        )
+        mul_blobs.append(feature_lat)
+        if index == 0:
+            model.net.Sum([feature_lat, fpn_top_up], output_blobs[index + 1])
+        else:
+            for i in range(index):
+                re_scale = 2 ** (1 + index - i)
+                feature_c = model.Conv(
+                    output_blobs[i],
+                    output_blobs[i]+'_To_'+output_blobs[index+1]+'_c',
+                    dim_in=fpn_dim,
+                    dim_out=fpn_dim,
+                    kernel=3,
+                    pad=1,
+                    stride=1,
+                    weight_init=(
+                        const_fill(0.0) if cfg.FPN.ZERO_INIT_LATERAL
+                        else ('XavierFill', {})
+                    ),
+                    bias_init=const_fill(0.0)
+                )
+
+                feature_up = model.net.UpsampleNearest(feature_c, feature_c+'_up', scale=re_scale)
+                mul_blobs.append(feature_up)
+
+            feature_mul=model.net.MulAll(mul_blobs, output_blobs[index+1] + "_mulall")
+            model.net.Sum([feature_mul, fpn_top_up], output_blobs[index + 1])
+
+
+
+def add_attention_backbone_fpn_bottomup_module(
+        model, attention_topdown,output_blobs,fpn_dim,num_backbone_stages,lateral_input_blobs):
+    attention_topdown.reverse()
+    output_blobs.reverse()
+    model.Conv(
+        attention_topdown[0],
+        output_blobs[0],
+        dim_in=fpn_dim,
+        dim_out=fpn_dim,
+        kernel=3,
+        pad=1,
+        stride=1,
+        weight_init=(
+            const_fill(0.0) if cfg.FPN.ZERO_INIT_LATERAL
+            else ('XavierFill', {})
+        ),
+        bias_init=const_fill(0.0)
+    )
+
+    for index in range(num_backbone_stages - 1):
+        mul_blobs=[]
+        fpn_bottom_up = model.net.ResizeNearest(output_blobs[index], output_blobs[index] + '_bottomup',  width_scale=1/2, height_scale=1/2)
+        feature_lat = model.Conv(
+            attention_topdown[index+1],
+            attention_topdown[index+1]+'_lat',
+            dim_in=fpn_dim,
+            dim_out=fpn_dim,
+            kernel=3,
+            pad=1,
+            stride=1,
+            weight_init=(
+                const_fill(0.0) if cfg.FPN.ZERO_INIT_LATERAL
+                else ('XavierFill', {})
+            ),
+            bias_init=const_fill(0.0)
+        )
+        mul_blobs.append(feature_lat)
+        if index == 0:
+            model.net.Sum([feature_lat, fpn_bottom_up], output_blobs[index + 1])
+        else:
+            for i in range(index):
+                re_scale = 2 ** (1 + index - i)
+                feature_c = model.Conv(
+                    output_blobs[i],
+                    output_blobs[i] + '_To_' + output_blobs[index + 1] + '_c',
+                    dim_in=fpn_dim,
+                    dim_out=fpn_dim,
+                    kernel=3,
+                    pad=1,
+                    stride=1,
+                    weight_init=(
+                        const_fill(0.0) if cfg.FPN.ZERO_INIT_LATERAL
+                        else ('XavierFill', {})
+                    ),
+                    bias_init=const_fill(0.0)
+                )
+
+                feature_up = model.net.ResizeNearest(feature_c, feature_c + '_bu', width_scale=1/re_scale, height_scale=1/re_scale)
+                mul_blobs.append(feature_up)
+
+            feature_mul = model.net.MulAll(mul_blobs, output_blobs[index + 1] + "_mulall")
+            model.net.Sum([feature_mul, fpn_bottom_up], output_blobs[index + 1])
+
+    output_blobs.reverse()
+    attention_topdown.reverse()
+
 
 
 def add_topdown_lateral_module(
