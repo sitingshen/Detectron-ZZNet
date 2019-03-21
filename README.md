@@ -36,7 +36,7 @@ and Detectron:
 
 ## Benchmarking
 
-### End-to-End Faster & Mask R-CNN Baselines
+### End-to-End Mask R-CNN Baselines
 
 <table><tbody>
 <!-- START E2E FASTER AND MASK TABLE -->
@@ -52,86 +52,56 @@ and Detectron:
 <th valign="bottom"><sup><sub>mask<br/>AP</sub></sup></th>
 <th valign="bottom"><sup><sub>mask<br/>AP50</sub></sup></th>
 <th valign="bottom"><sup><sub>mask<br/>AP75</sub></sup></th>
-<th valign="bottom"><sup><sub>download<br/>links</sub></sup></th>
 <!-- TABLE BODY -->
 
 <tr>
 <td align="left"><sup><sub>X-101-64x4d-FPN-baseline</sub></sup></td>
-<td align="left"><sup><sub>Faster</sub></sup></td>
+<td align="left"><sup><sub>Mask</sub></sup></td>
 <td align="left"><sup><sub>1x</sub></sup></td>
 <td align="right"><sup><sub>1</sub></sup></td>
-<td align="right"><sup><sub>41.5</sub></sup></td>
-<td align="right"><sup><sub>63.8</sub></sup></td>
-<td align="right"><sup><sub>44.9</sub></sup></td>
-<td align="right"><sup><sub>-</sub></sup></td>
-<td align="right"><sup><sub>-</sub></sup></td>
-<td align="right"><sup><sub>-</sub></sup></td>
-<td align="left"><sup><sub><a href="https://s3-us-west-2.amazonaws.com/detectron/35858015/12_2017_baselines/e2e_faster_rcnn_X-101-64x4d-FPN_1x.yaml.01_40_54.1xc565DE/output/train/coco_2014_train%3Acoco_2014_valminusminival/generalized_rcnn/model_final.pkl">model</a>&nbsp;|&nbsp;<a href="https://s3-us-west-2.amazonaws.com/detectron/35858015/12_2017_baselines/e2e_faster_rcnn_X-101-64x4d-FPN_1x.yaml.01_40_54.1xc565DE/output/test/coco_2014_minival/generalized_rcnn/bbox_coco_2014_minival_results.json">boxes</a></sub></sup></td>
+<td align="right"><sup><sub>42.38</sub></sup></td>
+<td align="right"><sup><sub>64.3</sub></sup></td>
+<td align="right"><sup><sub>46.41</sub></sup></td>
+<td align="right"><sup><sub>37.53</sub></sup></td>
+<td align="right"><sup><sub>60.63</sub></sup></td>
+<td align="right"><sup><sub>39.85</sub></sup></td>
 </tr>
 <tr>
 <td align="left"><sup><sub>X-101-64x4d-FPN-ZZNet</sub></sup></td>
-<td align="left"><sup><sub>Faster</sub></sup></td>
-<td align="left"><sup><sub>1x</sub></sup></td>
-<td align="right"><sup><sub>1</sub></sup></td>
-<td align="right"><sup><sub>45.4</sub></sup></td>
-<td align="right"><sup><sub>64.0</sub></sup></td>
-<td align="right"><sup><sub>49.8</sub></sup></td>
-<td align="right"><sup><sub>-</sub></sup></td>
-<td align="right"><sup><sub>-</sub></sup></td>
-<td align="right"><sup><sub>-</sub></sup></td>
-<td align="left"><sup><sub>model</a>&nbsp;|&nbsp;<a href="http://www.svcl.ucsd.edu/projects/cascade-rcnn/results/bbox_coco_2014_minival_results_X101-64x4d-FPN-cascade-rcnn.json">boxes</a></sub></sup></td>
-</tr>
-<tr>
-<td align="left"><sup><sub>X-101-64x4d-FPN-baseline</sub></sup></td>
 <td align="left"><sup><sub>Mask</sub></sup></td>
 <td align="left"><sup><sub>1x</sub></sup></td>
 <td align="right"><sup><sub>1</sub></sup></td>
-<td align="right"><sup><sub>42.4</sub></sup></td>
-<td align="right"><sup><sub>64.3</sub></sup></td>
-<td align="right"><sup><sub>46.4</sub></sup></td>
-<td align="right"><sup><sub>37.5</sub></sup></td>
-<td align="right"><sup><sub>60.6</sub></sup></td>
-<td align="right"><sup><sub>39.9</sub></sup></td>
-<td align="left"><sup><sub><a href="https://s3-us-west-2.amazonaws.com/detectron/36494496/12_2017_baselines/e2e_mask_rcnn_X-101-64x4d-FPN_1x.yaml.07_50_11.fkwVtEvg/output/train/coco_2014_train%3Acoco_2014_valminusminival/generalized_rcnn/model_final.pkl">model</a>&nbsp;|&nbsp;<a href="https://s3-us-west-2.amazonaws.com/detectron/36494496/12_2017_baselines/e2e_mask_rcnn_X-101-64x4d-FPN_1x.yaml.07_50_11.fkwVtEvg/output/test/coco_2014_minival/generalized_rcnn/bbox_coco_2014_minival_results.json">boxes</a>&nbsp;|&nbsp;<a href="https://s3-us-west-2.amazonaws.com/detectron/36494496/12_2017_baselines/e2e_mask_rcnn_X-101-64x4d-FPN_1x.yaml.07_50_11.fkwVtEvg/output/test/coco_2014_minival/generalized_rcnn/segmentations_coco_2014_minival_results.json">masks</a></sub></sup></td>
+<td align="right"><sup><sub>44.57</sub></sup></td>
+<td align="right"><sup><sub>66.66</sub></sup></td>
+<td align="right"><sup><sub>48.68</sub></sup></td>
+<td align="right"><sup><sub>39.59</sub></sup></td>
+<td align="right"><sup><sub>63.49</sub></sup></td>
+<td align="right"><sup><sub>41.96</sub></sup></td>
 </tr>
+
 <tr>
-<td align="left"><sup><sub>X-101-64x4d-FPN-cascade</sub></sup></td>
+<td align="left"><sup><sub>X-152-32x8d-FPN-baseline</sub></sup></td>
 <td align="left"><sup><sub>Mask</sub></sup></td>
 <td align="left"><sup><sub>1x</sub></sup></td>
 <td align="right"><sup><sub>1</sub></sup></td>
-<td align="right"><sup><sub>45.9</sub></sup></td>
-<td align="right"><sup><sub>64.4</sub></sup></td>
-<td align="right"><sup><sub>50.2</sub></sup></td>
-<td align="right"><sup><sub>38.8</sub></sup></td>
-<td align="right"><sup><sub>61.3</sub></sup></td>
-<td align="right"><sup><sub>41.6</sub></sup></td>
-<td align="left"><sup><sub>model</a>&nbsp;|&nbsp;<a href="http://www.svcl.ucsd.edu/projects/cascade-rcnn/results/bbox_coco_2014_minival_results_X101-64x4d-FPN-cascade-rcnn-mask.json">boxes</a>&nbsp;|&nbsp;<a href="http://www.svcl.ucsd.edu/projects/cascade-rcnn/results/segmentations_coco_2014_minival_results_X101-64x4d-FPN-cascade-rcnn-mask.json">masks</a></sub></sup></td>
+<td align="right"><sup><sub>45.30</sub></sup></td>
+<td align="right"><sup><sub>66.85</sub></sup></td>
+<td align="right"><sup><sub>49.85</sub></sup></td>
+<td align="right"><sup><sub>39.75</sub></sup></td>
+<td align="right"><sup><sub>63.54</sub></sup></td>
+<td align="right"><sup><sub>42.25</sub></sup></td>
 </tr>
 <tr>
-<td align="left"><sup><sub>X-101-32x8d-FPN-baseline</sub></sup></td>
+<td align="left"><sup><sub>X-152-32x8d-FPN-ZZNet</sub></sup></td>
 <td align="left"><sup><sub>Mask</sub></sup></td>
 <td align="left"><sup><sub>1x</sub></sup></td>
 <td align="right"><sup><sub>1</sub></sup></td>
-<td align="right"><sup><sub>42.1</sub></sup></td>
-<td align="right"><sup><sub>64.1</sub></sup></td>
-<td align="right"><sup><sub>45.9</sub></sup></td>
-<td align="right"><sup><sub>37.3</sub></sup></td>
-<td align="right"><sup><sub>60.3</sub></sup></td>
-<td align="right"><sup><sub>39.5</sub></sup></td>
-<td align="left"><sup><sub><a href="https://s3-us-west-2.amazonaws.com/detectron/36761843/12_2017_baselines/e2e_mask_rcnn_X-101-32x8d-FPN_1x.yaml.06_35_59.RZotkLKI/output/train/coco_2014_train%3Acoco_2014_valminusminival/generalized_rcnn/model_final.pkl">model</a>&nbsp;|&nbsp;<a href="https://s3-us-west-2.amazonaws.com/detectron/36761843/12_2017_baselines/e2e_mask_rcnn_X-101-32x8d-FPN_1x.yaml.06_35_59.RZotkLKI/output/test/coco_2014_minival/generalized_rcnn/bbox_coco_2014_minival_results.json">boxes</a>&nbsp;|&nbsp;<a href="https://s3-us-west-2.amazonaws.com/detectron/36761843/12_2017_baselines/e2e_mask_rcnn_X-101-32x8d-FPN_1x.yaml.06_35_59.RZotkLKI/output/test/coco_2014_minival/generalized_rcnn/segmentations_coco_2014_minival_results.json">masks</a></sub></sup></td>
-</tr>
-<tr>
-<td align="left"><sup><sub>X-101-32x8d-FPN-cascade</sub></sup></td>
-<td align="left"><sup><sub>Mask</sub></sup></td>
-<td align="left"><sup><sub>1x</sub></sup></td>
-<td align="right"><sup><sub>1</sub></sup></td>
-<td align="right"><sup><sub>45.8</sub></sup></td>
-<td align="right"><sup><sub>64.1</sub></sup></td>
-<td align="right"><sup><sub>50.3</sub></sup></td>
-<td align="right"><sup><sub>38.6</sub></sup></td>
-<td align="right"><sup><sub>60.6</sub></sup></td>
-<td align="right"><sup><sub>41.5</sub></sup></td>
-<td align="left"><sup><sub>model</a>&nbsp;|&nbsp;<a href="http://www.svcl.ucsd.edu/projects/cascade-rcnn/results/bbox_coco_2014_minival_results_X101-32x8d-FPN-cascade-rcnn-mask.json">boxes</a>&nbsp;|&nbsp;<a href="http://www.svcl.ucsd.edu/projects/cascade-rcnn/results/segmentations_coco_2014_minival_results_X101-32x8d-FPN-cascade-rcnn-mask.json">masks</a></sub></sup></td>
+<td align="right"><sup><sub>46.44</sub></sup></td>
+<td align="right"><sup><sub>67.69</sub></sup></td>
+<td align="right"><sup><sub>51.15</sub></sup></td>
+<td align="right"><sup><sub>40.96</sub></sup></td>
+<td align="right"><sup><sub>64.88</sub></sup></td>
+<td align="right"><sup><sub>43.66</sub></sup></td>
 </tr>
 <!-- END E2E FASTER AND MASK TABLE -->
 </tbody></table>
