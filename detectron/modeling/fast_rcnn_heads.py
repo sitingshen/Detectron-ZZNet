@@ -110,7 +110,8 @@ def add_roi_2mlp_head(model, blob_in, dim_in, spatial_scale):
         sampling_ratio=cfg.FAST_RCNN.ROI_XFORM_SAMPLING_RATIO,
         spatial_scale=spatial_scale
     )
-    model.FC(roi_feat, 'fc6', dim_in * roi_size * roi_size, hidden_dim)
+    model.Sum(['roi_feat_fpn5','roi_feat_fpn4','roi_feat_fpn3','roi_feat_fpn2'],'final_sum')
+    model.FC('final_sum', 'fc6', dim_in * roi_size * roi_size, hidden_dim)
     model.Relu('fc6', 'fc6')
     model.FC('fc6', 'fc7', hidden_dim, hidden_dim)
     model.Relu('fc7', 'fc7')

@@ -252,10 +252,13 @@ def _add_multilevel_rois(blobs):
         target_lvls = fpn.map_rois_to_fpn_levels(
             blobs[rois_blob_name][:, 1:5], lvl_min, lvl_max
         )
+        #distribute idx_lvl for roi to each_level
+        target_lvls.fill(lvl_min)
+        idx_lvl = np.where(target_lvls == lvl_min)[0]
         # Add per FPN level roi blobs named like: <rois_blob_name>_fpn<lvl>
         fpn.add_multilevel_roi_blobs(
             blobs, rois_blob_name, blobs[rois_blob_name], target_lvls, lvl_min,
-            lvl_max
+            lvl_max,idx_lvl
         )
 
     _distribute_rois_over_fpn_levels('rois')

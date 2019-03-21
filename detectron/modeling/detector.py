@@ -236,14 +236,14 @@ class DetectionModelHelper(cnn.CNNModelHelper):
         return blob_out
 
     def RoIFeatureTransform(
-        self,
-        blobs_in,
-        blob_out,
-        blob_rois='rois',
-        method='RoIPoolF',
-        resolution=7,
-        spatial_scale=1. / 16.,
-        sampling_ratio=0
+            self,
+            blobs_in,
+            blob_out,
+            blob_rois='rois',
+            method='RoIPoolF',
+            resolution=7,
+            spatial_scale=1. / 16.,
+            sampling_ratio=0
     ):
         """Add the specified RoI pooling method. The sampling_ratio argument
         is supported for some, but not all, RoI transform methods.
@@ -275,17 +275,6 @@ class DetectionModelHelper(cnn.CNNModelHelper):
                     spatial_scale=sc,
                     sampling_ratio=sampling_ratio
                 )
-            # The pooled features from all levels are concatenated along the
-            # batch dimension into a single 4D tensor.
-            xform_shuffled, _ = self.net.Concat(
-                bl_out_list, [blob_out + '_shuffled', '_concat_' + blob_out],
-                axis=0
-            )
-            # Unshuffle to match rois from dataloader
-            restore_bl = blob_rois + '_idx_restore_int32'
-            xform_out = self.net.BatchPermutation(
-                [xform_shuffled, restore_bl], blob_out
-            )
         else:
             # Single feature level
             bl_argmax = ['_argmax_' + blob_out] if has_argmax else []
@@ -297,8 +286,6 @@ class DetectionModelHelper(cnn.CNNModelHelper):
                 spatial_scale=spatial_scale,
                 sampling_ratio=sampling_ratio
             )
-        # Only return the first blob (the transformed features)
-        return xform_out[0] if isinstance(xform_out, tuple) else xform_out
 
     def ConvShared(
         self,

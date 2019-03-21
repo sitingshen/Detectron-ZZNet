@@ -90,7 +90,7 @@ def collect(inputs, is_training):
 
 def distribute(rois, label_blobs, outputs, train):
     """To understand the output blob order see return value of
-    Detectron-ZZnet.roi_data.fast_rcnn.get_fast_rcnn_blob_names(is_training=False)
+    detectron.roi_data.fast_rcnn.get_fast_rcnn_blob_names(is_training=False)
     """
     lvl_min = cfg.FPN.ROI_MIN_LEVEL
     lvl_max = cfg.FPN.ROI_MAX_LEVEL
@@ -98,16 +98,16 @@ def distribute(rois, label_blobs, outputs, train):
 
     outputs[0].reshape(rois.shape)
     outputs[0].data[...] = rois
-
+    lvls.fill(lvl_min)
+    idx_lvl=np.where(lvls==lvl_min)[0]
     # Create new roi blobs for each FPN level
     # (See: modeling.FPN.add_multilevel_roi_blobs which is similar but annoying
     # to generalize to support this particular case.)
     rois_idx_order = np.empty((0, ))
     for output_idx, lvl in enumerate(range(lvl_min, lvl_max + 1)):
-        idx_lvl = np.where(lvls == lvl)[0]
         blob_roi_level = rois[idx_lvl, :]
         outputs[output_idx + 1].reshape(blob_roi_level.shape)
         outputs[output_idx + 1].data[...] = blob_roi_level
-        rois_idx_order = np.concatenate((rois_idx_order, idx_lvl))
+    rois_idx_order = np.concatenate((rois_idx_order, idx_lvl))
     rois_idx_restore = np.argsort(rois_idx_order)
     blob_utils.py_op_copy_blob(rois_idx_restore.astype(np.int32), outputs[-1])

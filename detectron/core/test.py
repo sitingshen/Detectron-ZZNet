@@ -934,8 +934,10 @@ def _add_multilevel_rois_for_test(blobs, name):
     lvl_min = cfg.FPN.ROI_MIN_LEVEL
     lvl_max = cfg.FPN.ROI_MAX_LEVEL
     lvls = fpn.map_rois_to_fpn_levels(blobs[name][:, 1:5], lvl_min, lvl_max)
+    lvls.fill(lvl_min)
+    idx_lvl=np.where(lvls==lvl_min)[0]
     fpn.add_multilevel_roi_blobs(
-        blobs, name, blobs[name], lvls, lvl_min, lvl_max
+        blobs, name, blobs[name], lvls, lvl_min, lvl_max,idx_lvl
     )
 
 

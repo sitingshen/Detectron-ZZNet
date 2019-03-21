@@ -851,7 +851,7 @@ def map_rois_to_fpn_levels(rois, k_min, k_max):
 
 
 def add_multilevel_roi_blobs(
-    blobs, blob_prefix, rois, target_lvls, lvl_min, lvl_max
+    blobs, blob_prefix, rois, target_lvls, lvl_min, lvl_max,idx_lvl
 ):
     """Add RoI blobs for multiple FPN levels to the blobs dict.
 
@@ -865,18 +865,12 @@ def add_multilevel_roi_blobs(
     lvl_max: the coarest (lowest resolution) FPN level (e.g., 6)
     """
     rois_idx_order = np.empty((0, ))
-    rois_stacked = np.zeros((0, 5), dtype=np.float32)  # for assert
     for lvl in range(lvl_min, lvl_max + 1):
-        idx_lvl = np.where(target_lvls == lvl)[0]
         blobs[blob_prefix + '_fpn' + str(lvl)] = rois[idx_lvl, :]
-        rois_idx_order = np.concatenate((rois_idx_order, idx_lvl))
-        rois_stacked = np.vstack(
-            [rois_stacked, blobs[blob_prefix + '_fpn' + str(lvl)]]
-        )
+
+    rois_idx_order = np.concatenate((rois_idx_order, idx_lvl))
     rois_idx_restore = np.argsort(rois_idx_order).astype(np.int32, copy=False)
     blobs[blob_prefix + '_idx_restore_int32'] = rois_idx_restore
-    # Sanity check that restore order is correct
-    assert (rois_stacked[rois_idx_restore] == rois).all()
 
 
 # ---------------------------------------------------------------------------- #
