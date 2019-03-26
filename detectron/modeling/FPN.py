@@ -190,13 +190,13 @@ def add_fpn(model, fpn_level_info):
                 weight_init=xavier_fill,
                 bias_init=const_fill(0.0)
             )
-
+        dim=128
         add_attention_backbone_fpn_topdown_module(model, lateral_input_blobs, attention_topdown, fpn_dim_lateral, fpn_dim,num_backbone_stages)
         add_attention_backbone_fpn_bottomup_module(model, attention_topdown, loop_bu, fpn_dim, num_backbone_stages, lateral_input_blobs )
-        add_loop_topdown_module(model, attention_topdown, loop_bu, loop_td, fpn_dim, num_backbone_stages, 0)
-        add_loop_bottomup_module(model, loop_bu, loop_td, loop_bu_1, fpn_dim, num_backbone_stages, 1)
-        add_loop_topdown_module(model, loop_td, loop_bu_1, loop_td_1, fpn_dim, num_backbone_stages, 2)
-        add_loop_bottomup_module(model, loop_bu_1, loop_td_1, output_blobs, fpn_dim, num_backbone_stages, 3)
+        add_loop_topdown_module(model, attention_topdown, loop_bu, loop_td, fpn_dim,dim, num_backbone_stages, 0)
+        add_loop_bottomup_module(model, loop_bu, loop_td, loop_bu_1,fpn_dim, dim, num_backbone_stages, 1)
+        add_loop_topdown_module(model, loop_td, loop_bu_1, loop_td_1, dim,fpn_dim, num_backbone_stages, 2)
+        add_loop_bottomup_module(model, loop_bu_1, loop_td_1, output_blobs, dim,fpn_dim, num_backbone_stages, 3)
 
     else:
 
@@ -316,7 +316,7 @@ def add_fpn(model, fpn_level_info):
     return blobs_fpn, fpn_dim, spatial_scales
 
 
-def add_loop_bottomup_module(model, loop_bu, loop_td, output_blobs, fpn_dim, num_backbone_stages, tab):
+def add_loop_bottomup_module(model, loop_bu, loop_td, output_blobs, fpn_dim,dim, num_backbone_stages, tab):
    lp_td=[
         '{}_loop_c'.format(s)+str(tab)
         for s in loop_td[:num_backbone_stages]
@@ -329,9 +329,9 @@ def add_loop_bottomup_module(model, loop_bu, loop_td, output_blobs, fpn_dim, num
        td=model.ConvGN(
            loop_td[i],
            lp_td[i],
-           dim_in=fpn_dim,
-           dim_out=fpn_dim,
-           group_gn=get_group_gn(fpn_dim),
+           dim_in=dim,
+           dim_out=dim,
+           group_gn=get_group_gn(dim),
            kernel=3,
            pad=1,
            stride=1,
@@ -346,8 +346,8 @@ def add_loop_bottomup_module(model, loop_bu, loop_td, output_blobs, fpn_dim, num
            loop_bu[i],
            lp_bu[i],
            dim_in=fpn_dim,
-           dim_out=fpn_dim,
-           group_gn=get_group_gn(fpn_dim),
+           dim_out=dim,
+           group_gn=get_group_gn(dim),
            kernel=3,
            pad=1,
            stride=1,
@@ -376,8 +376,8 @@ def add_loop_bottomup_module(model, loop_bu, loop_td, output_blobs, fpn_dim, num
                 feature_c = model.Conv(
                     output_blobs[i],
                     output_blobs[i] + '_To_' + output_blobs[index + 1] + '_c',
-                    dim_in=fpn_dim,
-                    dim_out=fpn_dim,
+                    dim_in=dim,
+                    dim_out=dim,
                     kernel=3,
                     pad=1,
                     stride=1,
@@ -401,7 +401,7 @@ def add_loop_bottomup_module(model, loop_bu, loop_td, output_blobs, fpn_dim, num
    output_blobs.reverse()
 
 
-def add_loop_topdown_module(model, attention_topdown, loop_bu, output_blobs, fpn_dim, num_backbone_stages, tab):
+def add_loop_topdown_module(model, attention_topdown, loop_bu, output_blobs,fpn_dim, dim, num_backbone_stages, tab):
    att_td=[
         '{}_loop_c'.format(s)+str(tab)
         for s in attention_topdown[:num_backbone_stages]
@@ -415,8 +415,8 @@ def add_loop_topdown_module(model, attention_topdown, loop_bu, output_blobs, fpn
            attention_topdown[i],
            att_td[i],
            dim_in=fpn_dim,
-           dim_out=fpn_dim,
-           group_gn=get_group_gn(fpn_dim),
+           dim_out=dim,
+           group_gn=get_group_gn(dim),
            kernel=3,
            pad=1,
            stride=1,
@@ -431,8 +431,8 @@ def add_loop_topdown_module(model, attention_topdown, loop_bu, output_blobs, fpn
            loop_bu[i],
            lp_bu[i],
            dim_in=fpn_dim,
-           dim_out=fpn_dim,
-           group_gn=get_group_gn(fpn_dim),
+           dim_out=dim,
+           group_gn=get_group_gn(dim),
            kernel=3,
            pad=1,
            stride=1,
@@ -460,8 +460,8 @@ def add_loop_topdown_module(model, attention_topdown, loop_bu, output_blobs, fpn
                 feature_c = model.Conv(
                     output_blobs[i],
                     output_blobs[i] + '_To_' + output_blobs[index + 1] + '_c',
-                    dim_in=fpn_dim,
-                    dim_out=fpn_dim,
+                    dim_in=dim,
+                    dim_out=dim,
                     kernel=3,
                     pad=1,
                     stride=1,
