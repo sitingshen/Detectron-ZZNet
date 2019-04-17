@@ -36,7 +36,10 @@ and Detectron:
 
 ## Benchmarking
 
+
 ### End-to-End Mask R-CNN Baselines
+
+All models were tested on the `coco_2017_val` dataset
 
 <table align="canter"><tbody>
 <!-- START E2E FASTER AND MASK TABLE -->
@@ -106,7 +109,8 @@ and Detectron:
 <!-- END E2E FASTER AND MASK TABLE -->
 </tbody></table>
 
-
+## Model
+The model weights that can reproduce numbers in our paper will be coming soon.
 
 
 
