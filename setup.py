@@ -29,9 +29,9 @@ _NP_INCLUDE_DIRS = np.get_include()
 # Extension modules
 ext_modules = [
     Extension(
-        name='Detectron-ZZnet.utils.cython_bbox',
+        name='detectron.utils.cython_bbox',
         sources=[
-            'Detectron-ZZnet/utils/cython_bbox.pyx'
+            'detectron/utils/cython_bbox.pyx'
         ],
         extra_compile_args=[
             '-Wno-cpp'
@@ -41,9 +41,9 @@ ext_modules = [
         ]
     ),
     Extension(
-        name='Detectron-ZZnet.utils.cython_nms',
+        name='detectron.utils.cython_nms',
         sources=[
-            'Detectron-ZZnet/utils/cython_nms.pyx'
+            'detectron/utils/cython_nms.pyx'
         ],
         extra_compile_args=[
             '-Wno-cpp'
@@ -56,6 +56,6 @@ ext_modules = [
 
 setup(
     name='Detectron',
-    packages=['Detectron-ZZnet'],
+    packages=['detectron'],
     ext_modules=cythonize(ext_modules)
 )
