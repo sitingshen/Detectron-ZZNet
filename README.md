@@ -55,6 +55,7 @@ All models were tested on the `coco_2017_val` dataset
 <th valign="bottom"><sup><sub>mask<br/>AP</sub></sup></th>
 <th valign="bottom"><sup><sub>mask<br/>AP50</sub></sup></th>
 <th valign="bottom"><sup><sub>mask<br/>AP75</sub></sup></th>
+ <th valign="bottom"><sup><sub>download links<br/></sub></sup></th>
 <!-- TABLE BODY -->
 
 <tr>
@@ -68,6 +69,7 @@ All models were tested on the `coco_2017_val` dataset
 <td align="right"><sup><sub>37.53</sub></sup></td>
 <td align="right"><sup><sub>60.63</sub></sup></td>
 <td align="right"><sup><sub>39.85</sub></sup></td>
+<td align="center"><sup><sub>——</sub></sup></td>
 </tr>
 <tr>
 <td align="left"><sup><sub>X-101-64x4d-FPN-ZZNet</sub></sup></td>
@@ -80,6 +82,7 @@ All models were tested on the `coco_2017_val` dataset
 <td align="right"><sup><sub>39.59</sub></sup></td>
 <td align="right"><sup><sub>63.49</sub></sup></td>
 <td align="right"><sup><sub>41.96</sub></sup></td>
+<td align="center"><sup><sub><a href="https://drive.google.com/file/d/1-rpMhTCssuDhowqdC2wqa7WTqybi-dHR/view?usp=sharing">model</a></sub></sup></td>
 </tr>
 
 <tr>
@@ -93,6 +96,7 @@ All models were tested on the `coco_2017_val` dataset
 <td align="right"><sup><sub>39.75</sub></sup></td>
 <td align="right"><sup><sub>63.54</sub></sup></td>
 <td align="right"><sup><sub>42.25</sub></sup></td>
+<td align="center"><sup><sub>——</sub></sup></td>
 </tr>
 <tr>
 <td align="left"><sup><sub>X-152-32x8d-FPN-ZZNet</sub></sup></td>
@@ -105,6 +109,7 @@ All models were tested on the `coco_2017_val` dataset
 <td align="right"><sup><sub>40.96</sub></sup></td>
 <td align="right"><sup><sub>64.88</sub></sup></td>
 <td align="right"><sup><sub>43.66</sub></sup></td>
+<td align="center"><sup><sub>model</sub></sup></td>
 </tr>
 <!-- END E2E FASTER AND MASK TABLE -->
 </tbody></table>
